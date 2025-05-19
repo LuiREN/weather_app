@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-from . import models
+from backend.app import models
 
 # Путь для сохранения обученной модели
 MODEL_PATH = "/app/database/weather_model.joblib"
@@ -64,8 +64,8 @@ def train_model(data: List[models.WeatherData]) -> Dict[str, float]:
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     
-    # Кодирование категориальных признаков
-    encoder = OneHotEncoder(sparse=False, handle_unknown='ignore')
+    # Кодирование категориальных признаков - исправление предупреждения
+    encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
     encoded_conditions = encoder.fit_transform(np.array(conditions).reshape(-1, 1))
     
     # Сохраняем scaler и encoder для последующего использования
@@ -73,9 +73,9 @@ def train_model(data: List[models.WeatherData]) -> Dict[str, float]:
     joblib.dump(encoder, ENCODER_PATH)
     
     # Обучение моделей для разных целевых переменных
-    model_temp = RandomForestRegressor(n_estimators=50, random_state=42)
-    model_humidity = RandomForestRegressor(n_estimators=50, random_state=42)
-    model_precip = RandomForestRegressor(n_estimators=50, random_state=42)
+    model_temp = RandomForestRegressor(n_estimators=100, random_state=42, max_depth=None)
+    model_humidity = RandomForestRegressor(n_estimators=100, random_state=42, max_depth=None)
+    model_precip = RandomForestRegressor(n_estimators=100, random_state=42, max_depth=None)
     
     model_temp.fit(X_scaled, y_temp)
     model_humidity.fit(X_scaled, y_humidity)
@@ -99,10 +99,13 @@ def train_model(data: List[models.WeatherData]) -> Dict[str, float]:
     metrics = {
         'temp_rmse': float(np.sqrt(mean_squared_error(y_temp, y_temp_pred))),
         'temp_mae': float(mean_absolute_error(y_temp, y_temp_pred)),
+        'temp_r2': float(r2_score(y_temp, y_temp_pred)),  # Добавляем R²
         'humidity_rmse': float(np.sqrt(mean_squared_error(y_humidity, y_humidity_pred))),
         'humidity_mae': float(mean_absolute_error(y_humidity, y_humidity_pred)),
+        'humidity_r2': float(r2_score(y_humidity, y_humidity_pred)),  # Добавляем R²
         'precip_rmse': float(np.sqrt(mean_squared_error(y_precip, y_precip_pred))),
-        'precip_mae': float(mean_absolute_error(y_precip, y_precip_pred))
+        'precip_mae': float(mean_absolute_error(y_precip, y_precip_pred)),
+        'precip_r2': float(r2_score(y_precip, y_precip_pred))  # Добавляем R²
     }
     
     return metrics

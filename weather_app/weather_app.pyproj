@@ -39,7 +39,19 @@
     <Compile Include="backend\app\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="backend\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="frontend\app.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\test_ml_model.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\test_scraper.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="weather_app.py" />
@@ -49,6 +61,7 @@
     <Folder Include="backend\app\" />
     <Folder Include="frontend\" />
     <Folder Include="database\" />
+    <Folder Include="tests\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="backend\Dockerfile" />

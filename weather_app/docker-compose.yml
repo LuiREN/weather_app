@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   backend:
@@ -17,8 +17,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 500M
+          cpus: '0.7'  # Увеличено, так как скрапинг потребует больше ресурсов
+          memory: 700M  # Увеличено для обработки больших данных
 
   frontend:
     build: ./frontend
@@ -36,8 +36,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.3'
-          memory: 300M
+          cpus: '0.5'  # Увеличено для более плавной работы интерфейса
+          memory: 500M  # Увеличено для обработки графиков и визуализаций
 
 volumes:
   database:
