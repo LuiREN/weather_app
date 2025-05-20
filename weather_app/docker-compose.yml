@@ -1,5 +1,4 @@
 ﻿version: '3.8'
-
 services:
   backend:
     build: ./backend
@@ -8,6 +7,8 @@ services:
     volumes:
       - ./database:/app/database
     restart: always
+    environment:
+      - PYTHONPATH=/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/cities"]
       interval: 30s
@@ -19,7 +20,6 @@ services:
         limits:
           cpus: '0.7'  # Увеличено, так как скрапинг потребует больше ресурсов
           memory: 700M  # Увеличено для обработки больших данных
-
   frontend:
     build: ./frontend
     ports:
@@ -38,6 +38,5 @@ services:
         limits:
           cpus: '0.5'  # Увеличено для более плавной работы интерфейса
           memory: 500M  # Увеличено для обработки графиков и визуализаций
-
 volumes:
   database:
