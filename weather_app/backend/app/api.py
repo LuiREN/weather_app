@@ -5,7 +5,6 @@ import datetime
 import json
 from . import models, database, scraper, ml_model
 
-# Создаем роутер для API
 router = APIRouter()
 
 # Получение всех городов в базе
@@ -22,7 +21,7 @@ async def scrape_weather(
     disable_limit: bool = Query(True, description="Отключить ограничение на количество дней")
 ):
     try:
-        # Регистрируем начало операции скрапинга
+        
         log_id = database.save_scraping_log(
             city=city,
             start_date=start_date or (datetime.date.today() - datetime.timedelta(days=9)),
@@ -72,7 +71,7 @@ async def scrape_weather(
             )
             
         except Exception as e:
-            # Регистрируем ошибку
+          
             database.save_scraping_log(
                 city=city,
                 start_date=start_date or (datetime.date.today() - datetime.timedelta(days=9)),
@@ -83,7 +82,7 @@ async def scrape_weather(
             raise HTTPException(status_code=500, detail=f"Ошибка скрапинга: {str(e)}")
             
     except Exception as e:
-        # Если не удалось сохранить лог, всё равно пытаемся вернуть ошибку
+        
         raise HTTPException(status_code=500, detail=f"Ошибка скрапинга: {str(e)}")
 
 # Получение погодных данных из БД
@@ -94,21 +93,21 @@ async def get_weather_data(
 ):
     return database.get_weather_data(city, days)
 
-# Получение прогноза погоды на основе исторических данных
+
 @router.get("/forecast", response_model=List[models.WeatherForecast])
 async def get_forecast(
     city: str = Query(..., description="Город для прогноза"),
     days: int = Query(5, description="Количество дней для прогноза"),
 ):
-    # Проверка наличия достаточного количества данных
-    data = database.get_weather_data(city, 30)  # Берем данные за 30 дней для обучения
+    
+    data = database.get_weather_data(city, 30)  
     if len(data) < 5:
         raise HTTPException(status_code=400, detail="Недостаточно данных для прогноза. Сначала выполните скрапинг.")
     
     forecast = ml_model.make_forecast(data, days)
     return forecast
 
-# Тренировка модели на основе собранных данных
+
 @router.post("/train_model", response_model=models.TrainingResponse)
 async def train_model(city: str = Query(..., description="Город для обучения модели")):
     try:
@@ -159,26 +158,26 @@ async def get_data_availability(
     end_date: Optional[datetime.date] = Query(None, description="Конечная дата для проверки")
 ):
     try:
-        # Если даты не указаны, используем последние 30 дней
+   
         if not start_date:
             start_date = datetime.date.today() - datetime.timedelta(days=29)
         if not end_date:
             end_date = datetime.date.today()
             
-        # Получаем информацию о доступности данных
+        
         availability = database.get_data_availability(city)
         
-        # Получаем список дат, для которых есть данные
+        
         existing_dates = []
         
-        # Получаем данные за указанный период
-        weather_data = database.get_weather_data(city, 100)  # Берем с запасом
+        
+        weather_data = database.get_weather_data(city, 100)  
         
         for data in weather_data:
             if start_date <= data.date <= end_date:
                 existing_dates.append(data.date.isoformat())
         
-        # Находим отсутствующие даты
+      
         missing_dates = database.get_missing_dates(city, start_date, end_date)
         missing_dates_iso = [d.isoformat() for d in missing_dates]
         
@@ -207,10 +206,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Инициализация БД при запуске
 @app.on_event("startup")
 async def startup():
     database.init_db()
 
-# Подключаем маршруты
+
 app.include_router(router)
