@@ -29,6 +29,7 @@ weather_app/
 │   ├── Dockerfile
 │   └── requirements.txt
 ├── database/              # Каталог для файла БД
+├── test/                  # Каталог тестов
 ├── docker-compose.yml
 └── README.md
 ```
